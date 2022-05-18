@@ -1,14 +1,16 @@
-import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.AllureId;
 import io.qameta.allure.Owner;
+import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.Test;
 
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static io.qameta.allure.Allure.step;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ImportTestFromAllure {
     @Test
@@ -17,26 +19,32 @@ public class ImportTestFromAllure {
     @Tags({@Tag("average"), @Tag("integration"), @Tag("asap"), @Tag("login")})
     @Owner("allure8")
     void loginTestImportedFromAllureTestOps() {
+        SelenideLogger.addListener("AllureSelenide", new AllureSelenide());
+
+
         step("Open login page", () -> {
-            open("https://url.url");
+            open("https://trade.mangotrade.com");
         });
-        step("Enter user_name", () -> {
-            $("#name").setValue("admin");
+        step("Set identifier", () -> {
+            $("[name=identifier]").setValue("mnenie@bk.ru");
         });
-        step("Enter user_password", () -> {
-            $("#password").setValue("123");
+        step("Set password", () -> {
+            $("[name=password]").setValue("Test1234");
         });
-        step("Click button \"Submit\"", () -> {
-            $("#submit").click();
+        step("Click button \"Log in\"", () -> {
+            $("[data-test-id=login-submit-button]").click();
+            sleep(5000);
         });
 
         step("Check ER:", () -> {
-            step("User has logged", () ->
-                    $("#header").shouldHave(Condition.exactText("User has logged"));
+
+            step("User has logged");
+
+            step("Redirect to 'https://trade.mangotrade.com/traderoom'", () -> {
+                String currURL = getWebDriver().getCurrentUrl().toString();
+                assertEquals("https://trade.mangotrade.com/traderoom", currURL);
+            });
         });
-        step("In main menu-bar user_name = Admin", () -> {
-            $("#user-bar").shouldHave(Condition.exactText("Admin"));
-        });
-    });
-}
+
+    }
 }
